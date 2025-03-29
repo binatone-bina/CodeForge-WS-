@@ -47,12 +47,13 @@ The frontend is located in the `frontend/` directory and provides a user-friendl
     cd frontend
     npm install
 
-## Usage for Backend:
-```sh
-node server.js 
-uvicorn  fileupload:app --reload --port 8080 (in new terminal)
+## Launching Frontend 
+1. Navigate to frontend/directory
+   ```sh
+   cd frontend
+   npm run dev
 
-## Launching
-```sh
-cd frontend
-npm run dev
+## Usage for Backend:
+   ```sh
+   node server.js 
+   uvicorn  fileupload:app --reload --port 8080 (in new terminal)
