@@ -21,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-uri = os.getenv("NIKHIL_MOPNGO_URI")
+uri = os.getenv("NIK_MOPNGO_URI")
 
 client = MongoClient(uri, server_api=ServerApi('1'))
 
