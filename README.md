@@ -1,4 +1,4 @@
-##SecurePathway
+## SecurePathway
 
 ## Overview
 SecurePathway is a full-stack application designed to enhance **women's safety** by providing features such as identifying the safest path, detecting deepfake media, SOS calling, and managing emergency contacts. The project integrates machine learning, real-time data processing, and a user-friendly interface to ensure a comprehensive safety solution.
