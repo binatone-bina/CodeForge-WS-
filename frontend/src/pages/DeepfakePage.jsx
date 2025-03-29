@@ -13,22 +13,50 @@ const DeepfakePage = () => {
       setResult(null);
     }
   };
-  
-  const handleAnalyze = () => {
-    if (!selectedFile) return;
+
+  async function fileUpload(file){
+    const formData = new FormData();
+    formData.append('file', file);
     
-    setIsAnalyzing(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setResult({
-        isDeepfake: Math.random() > 0.5,
-        confidence: Math.floor(Math.random() * 30) + 70
+    try {
+      setIsAnalyzing(true);
+      const response = await fetch('http://localhost:8080/upload/', {
+        method: 'POST',
+        body: formData
       });
+      if (!response.ok) throw new Error('File upload failed');
+      return response.json();
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return null;
+    }
+  }
+
+  async function analyzeFile(imageName) {
+    await fileUpload(selectedFile);
+    setIsAnalyzing(true);
+
+    const url = `http://localhost:8080/retrieve/${imageName['name']}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Error fetching analysis result');
+      const data = await response.json();
+      setResult(data["image_data"]);
+      console.log(data["image_data"]);
+    }
+    catch (error) {
+      console.error('Error fetching analysis result:', error);
+    } finally {
       setIsAnalyzing(false);
-    }, 2000);
-  };
-  
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-3xl mx-auto">
@@ -71,7 +99,7 @@ const DeepfakePage = () => {
           
           <div className="flex justify-center">
             <Button 
-              onClick={handleAnalyze}
+              onClick={()=>analyzeFile(selectedFile)}
               disabled={!selectedFile || isAnalyzing}
               className="px-6"
             >
@@ -80,9 +108,9 @@ const DeepfakePage = () => {
           </div>
           
           {result && (
-            <div className={`mt-6 p-4 rounded-lg ${result.isDeepfake ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+            <div className={`mt-6 p-4 rounded-lg ${result == "deepfake" ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
               <div className="flex items-center">
-                {result.isDeepfake ? (
+                {result == "deepfake" ? (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -98,7 +126,6 @@ const DeepfakePage = () => {
                   </>
                 )}
               </div>
-              <p className="mt-2">Confidence: {result.confidence}%</p>
             </div>
           )}
         </Card>
