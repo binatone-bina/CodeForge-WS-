@@ -29,3 +29,34 @@ export const sendSOS = async (userId, location) => {
   const response = await api.post(`/users/${userId}/sos`, { location })
   return response.data
 }
+// Update user location in database
+export const updateLocationInDB = async (userId, lat, lng) => {
+  try {
+    const response = await api.post(`/users/${userId}/update-location`, {
+      latitude: lat,
+      longitude: lng
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating location in database:', error);
+    throw error;
+  }
+};
+
+// Get user's stored location from database
+export const getStoredLocation = async (userId) => {
+  try {
+    const response = await api.get(`/users/${userId}/location`);
+    if (response.data.success && response.data.location) {
+      return {
+        lat: response.data.location.latitude,
+        lng: response.data.location.longitude,
+        lastUpdated: response.data.location.lastUpdated
+      };
+    }
+    throw new Error('Location not found in database');
+  } catch (error) {
+    console.error('Error fetching stored location:', error);
+    throw error;
+  }
+};

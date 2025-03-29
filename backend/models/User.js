@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   emergencyContacts: [emergencyContactSchema],
+  location: {
+    latitude: { type: Number, default: null },
+    longitude: { type: Number, default: null },
+    lastUpdated: { type: Date, default: null }
+  },
   createdAt: {
     type: Date,
     default: Date.now

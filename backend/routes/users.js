@@ -130,6 +130,17 @@ router.put('/:userId/emergency-contacts', async (req, res) => {
 router.post('/:userId/sos', async (req, res) => {
   try {
     const { location } = req.body;
+
+    // Validate location
+    if (!location || ((!location.lat && !location.latitude) || (!location.lng && !location.longitude))) {
+      return res.status(400).json({ msg: 'Valid location data is required' });
+    }
+    
+    // Normalize location format
+    const normalizedLocation = {
+      lat: location.lat || location.latitude,
+      lng: location.lng || location.longitude
+    };
     
     const user = await User.findById(req.params.userId);
     if (!user) {
@@ -165,6 +176,62 @@ router.post('/:userId/sos', async (req, res) => {
         callError: callResult.error
       });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// Update user location
+router.post('/:userId/update-location', async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+    
+    if (!latitude || !longitude) {
+      return res.status(400).json({ msg: 'Latitude and longitude are required' });
+    }
+    
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    user.location = {
+      latitude,
+      longitude,
+      lastUpdated: new Date()
+    };
+    
+    await user.save();
+    
+    res.json({ 
+      success: true, 
+      location: user.location 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// Get user's stored location
+router.get('/:userId/location', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('location');
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    if (!user.location || !user.location.latitude || !user.location.longitude) {
+      return res.status(404).json({ msg: 'Location not found for this user' });
+    }
+    
+    res.json({
+      success: true,
+      location: user.location
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: 'Server error' });

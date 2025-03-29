@@ -28,6 +28,16 @@ const makeEmergencyCalls = async (user, location, emergencyContacts) => {
           console.log('Emergency calls disabled in user settings');
           return { success: false, error: 'Emergency calls disabled by user', disabled: true };
         }
+
+        // Validate location format
+        if (!location || (!location.lat && !location.latitude) || (!location.lng && !location.longitude)) {
+          console.error("Invalid location data for emergency calls");
+          return { success: false, error: "Invalid location data" };
+        }
+
+        // Use either format
+        const latitude = location.lat || location.latitude;
+        const longitude = location.lng || location.longitude;
         
         try {
             const client = createTwilioClient();
@@ -49,7 +59,7 @@ const makeEmergencyCalls = async (user, location, emergencyContacts) => {
               voice: 'woman',
               language: 'en-US'
             }, `This is an emergency SOS alert from ${user.name}. They need immediate assistance. ` +
-               `Their current location coordinates are: Latitude ${location.lat}, Longitude ${location.lng}. ` +
+               `Their current location coordinates are: Latitude ${latitude}, Longitude ${longitude}. ` +
                `Please check your SMS for a Google Maps link to their location. This message will repeat.`);
             
             // Repeat the message

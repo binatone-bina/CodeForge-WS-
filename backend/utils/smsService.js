@@ -25,6 +25,15 @@ const formatPhoneNumber = (phoneNumber) => {
 // Send SOS SMS
 const sendSOSSMS = async (user, location, emergencyContacts) => {
   try {
+
+    if (!location || (!location.lat && !location.latitude) || (!location.lng && !location.longitude)) {
+      return { success: false, error: "Invalid location data" };
+    }
+
+    // Use either format
+    const latitude = location.lat || location.latitude;
+    const longitude = location.lng || location.longitude;
+
     const client = createTwilioClient();
     
     // Filter contacts that have phone numbers
@@ -42,7 +51,7 @@ const sendSOSSMS = async (user, location, emergencyContacts) => {
       const formattedPhone = formatPhoneNumber(contact.phone);
       console.log(`Formatted phone number: ${contact.phone} -> ${formattedPhone}`);
       
-      const message = `🚨 EMERGENCY SOS ALERT: ${user.name} needs help! Location: https://www.google.com/maps?q=${location.lat},${location.lng} (${contact.relation})`;
+      const message = `🚨 EMERGENCY SOS ALERT: ${user.name} needs help! Location: https://www.google.com/maps?q=${latitude},${longitude} (${contact.relation})`;
       
       return client.messages.create({
         body: message,

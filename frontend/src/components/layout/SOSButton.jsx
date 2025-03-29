@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocation as useLocationContext } from '../../context/LocationContext';
-import { sendSOS } from '../../services/auth';
+import { sendSOS, getStoredLocation } from '../../services/auth';
 
 const SOSButton = () => {
   const { user } = useAuth();
@@ -19,7 +19,45 @@ const SOSButton = () => {
   
     try {
       setSending(true);
-      const response = await sendSOS(user.userId, currentLocation);
+      
+      // Determine which location to use
+      let locationToUse = null;
+      let locationSource = "none";
+      
+      // First try to use live location
+      if (currentLocation && currentLocation.lat && currentLocation.lng && !currentLocation.isFallback) {
+        locationToUse = {
+          lat: currentLocation.lat,
+          lng: currentLocation.lng
+        };
+        locationSource = "live";
+        console.log("Using live location for SOS");
+      } 
+      // If live location is not available, try from database
+      else {
+        try {
+          console.log("Live location not available, attempting to fetch from database");
+          const storedLocation = await getStoredLocation(user.userId);
+          if (storedLocation && storedLocation.lat && storedLocation.lng) {
+            locationToUse = {
+              lat: storedLocation.lat,
+              lng: storedLocation.lng
+            };
+            locationSource = "database";
+            console.log("Using stored location from database:", locationToUse);
+          }
+        } catch (err) {
+          console.error("Failed to get stored location:", err);
+        }
+      }
+      
+      // Only proceed if we have a location
+      if (!locationToUse) {
+        alert('No location available. SOS alert cannot be sent without location.');
+        return;
+      }
+      
+      const response = await sendSOS(user.userId, locationToUse);
       
       // Build a detailed success message
       let successDetails = [];
@@ -40,6 +78,13 @@ const SOSButton = () => {
       let alertMessage = 'SOS alert sent successfully!';
       if (successDetails.length > 0) {
         alertMessage += `\n\nSent via: ${successDetails.join(', ')}`;
+      }
+
+      // Add location source info
+      if (locationSource === "live") {
+        alertMessage += "\n\nUsing your current live location.";
+      } else if (locationSource === "database") {
+        alertMessage += "\n\nUsing your last stored location.";
       }
       
       alert(alertMessage);

@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { useAuth } from './AuthContext';
+import { updateLocationInDB } from '../services/auth'; // Import your API function
 
 const LocationContext = createContext();
 
@@ -10,6 +12,7 @@ export const LocationProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [permissionState, setPermissionState] = useState('prompt'); // 'granted', 'denied', or 'prompt'
   const timeoutRef = useRef(null);
+  const { user } = useAuth(); 
 
   useEffect(() => {
     // Fallback function to use if geolocation fails
@@ -61,13 +64,21 @@ export const LocationProvider = ({ children }) => {
             clearTimeout(timeoutRef.current);
           }
           
-          setCurrentLocation({
+          const newLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
             isFallback: false
-          });
+          };
+          
+          setCurrentLocation(newLocation);
           setLoading(false);
           setError(null);
+          // Save location to database if user is logged in
+          if (user && user.userId) {
+            updateLocationInDB(user.userId, newLocation.lat, newLocation.lng)
+              .then(() => console.log('Location updated in database'))
+              .catch(err => console.error('Failed to update location in DB:', err));
+          }
         },
         (err) => {
           // Handle specific geolocation errors
@@ -105,7 +116,7 @@ export const LocationProvider = ({ children }) => {
       // Browser doesn't support geolocation
       setFallbackLocation('Geolocation is not supported by this browser');
     }
-  }, [permissionState, loading]);
+  }, [permissionState, loading, user]);
 
   const value = {
     currentLocation,
