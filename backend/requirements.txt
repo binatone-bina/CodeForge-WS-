@@ -1,0 +1,7 @@
+python-dotenv
+pymongo 
+fastapi
+uvicorn
+torch
+torchvision
+pillow
