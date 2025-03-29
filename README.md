@@ -51,3 +51,8 @@ The frontend is located in the `frontend/` directory and provides a user-friendl
 ```sh
 node server.js 
 uvicorn  fileupload:app --reload --port 8080 (in new terminal)
+
+## Launching
+```sh
+cd frontend
+npm run dev
