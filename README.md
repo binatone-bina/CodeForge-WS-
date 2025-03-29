@@ -48,5 +48,6 @@ The frontend is located in the `frontend/` directory and provides a user-friendl
     npm install
 
 ## Usage for Backend:
+```sh
 node server.js 
-(for deepfake) uvicorn  fileupload:app --reload --port 8080
+uvicorn  fileupload:app --reload --port 8080 (in new terminal)
