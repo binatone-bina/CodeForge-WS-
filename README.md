@@ -13,7 +13,7 @@ Multiple Transportation Modes: Customized safety routes for walking, cycling, an
 
 2. Comprehensive Emergency Response
 One-Touch SOS Activation: Instantly trigger alerts with a single tap
-Multi-Channel Alerts: Simultaneously sends SMS messages, emails, and initiates phone calls
+Multi-Channel Alerts: Simultaneously sends *SMS* messages, *emails*, and initiates *phone calls*
 Precise Location Sharing: Automatically includes Google Maps links with exact coordinates
 The sos can get triggered by hearing the word 'Help' also if microphone permission is allowed.
 Fallback Mechanisms: Works even when precise location services are unavailable
